@@ -1,0 +1,3 @@
+{% for item in shopping_list %}
+{{ item.ingredient__name }} ({{ item.ingredient__measurement_unit }}) - {{ item.total_amount }}
+{% endfor %}
