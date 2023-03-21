@@ -3,7 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    '''Кастомная модель User.'''
+    """Кастомная модель User."""
     username = models.CharField(
         db_index=True,
         max_length=150,
@@ -28,6 +28,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+        ordering = ['-username']
 
     def __str__(self):
         """Строковое представление модели."""
@@ -35,7 +36,7 @@ class User(AbstractUser):
 
 
 class Subscription(models.Model):
-    '''Модель подписок пользователей друг на друга.'''
+    """Модель подписок пользователей друг на друга."""
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='subscribers',
         verbose_name='Автор рецепта')
@@ -46,6 +47,7 @@ class Subscription(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+        ordering = ['-author']
 
     def __str__(self):
         """Строковое представление модели."""

@@ -1,19 +1,21 @@
-from rest_framework import status, viewsets
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.shortcuts import get_object_or_404
-from users.serializers import (
-    CustomUserSerializer, CustomUserCreateSerializer, ChangePasswordSerializer,
-    SubscriptionSerializer)
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from django.contrib.auth import get_user_model
-from .models import Subscription
+from django.shortcuts import get_object_or_404
 
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+
+from .models import Subscription
+from users.serializers import (
+    ChangePasswordSerializer, CustomUserCreateSerializer, CustomUserSerializer,
+    SubscriptionSerializer)
 
 User = get_user_model()
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
+    """ViewSet для кастомной модели User."""
     permission_classes = (AllowAny,)
     queryset = User.objects.all()
 

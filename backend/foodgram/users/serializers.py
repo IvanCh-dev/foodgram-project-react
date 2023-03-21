@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
-from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from rest_framework import serializers
+
 from .models import Subscription
 from api.serializers import RecipeSubscSerializer
 
@@ -8,7 +9,7 @@ User = get_user_model()
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
-    '''Сериализатор создания объеката кастомной модели User'''
+    """Сериализатор создания объеката кастомной модели User."""
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name',
@@ -16,7 +17,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 
 class CustomUserSerializer(UserSerializer):
-    '''Сериализатор чтения объеката кастомной модели User'''
+    """Сериализатор чтения объеката кастомной модели User."""
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -32,14 +33,14 @@ class CustomUserSerializer(UserSerializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    '''Сериализатор смены пароля кастомной модели User'''
+    """Сериализатор смены пароля кастомной модели User."""
     model = User
     current_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
-    '''Сериализатор подписок'''
+    """Сериализатор подписок."""
     is_subscribed = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()

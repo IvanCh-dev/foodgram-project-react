@@ -1,12 +1,14 @@
-from rest_framework import serializers
-from recipes.models import (
-    Ingredient, Tag, Recipe, Favorite, Cart, IngredientAmount, RecipeTag)
 import base64
+
 from django.core.files.base import ContentFile
+from rest_framework import serializers
+
+from recipes.models import (
+    Cart, Favorite, Ingredient, IngredientAmount, Recipe, RecipeTag, Tag)
 
 
 class Base64ImageField(serializers.ImageField):
-    '''Сериализатор для работы с картинками в Base64.'''
+    """Сериализатор для работы с картинками в Base64."""
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
@@ -17,14 +19,14 @@ class Base64ImageField(serializers.ImageField):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    '''Сериализатор для тегов.'''
+    """Сериализатор для тегов."""
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    '''Сериализатор для ингредиентов.'''
+    """Сериализатор для ингредиентов."""
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
@@ -32,7 +34,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
-    '''Сериализатор для работы с чтением ИнгредиентКоличество.'''
+    """Сериализатор для работы с чтением ИнгредиентКоличество."""
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -44,7 +46,7 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
 
 
 class IngredientAmountCreateSerializer(serializers.ModelSerializer):
-    '''Сериализатор для работы с созданием ИнгредиентКоличество.'''
+    """Сериализатор для работы с созданием ИнгредиентКоличество."""
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(),
         source='ingredient',
@@ -58,7 +60,7 @@ class IngredientAmountCreateSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    '''Сериализатор для рецептов.'''
+    """Сериализатор для рецептов."""
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     tags = serializers.PrimaryKeyRelatedField(
@@ -103,11 +105,14 @@ class RecipeSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         for tag in tags_data:
             RecipeTag.objects.create(recipe=recipe, tag=tag)
-        for ingredient_data in ingredients_data:
-            ingredient = ingredient_data['ingredient']
-            amount = ingredient_data['amount']
-            IngredientAmount.objects.create(
-                recipe=recipe, ingredient=ingredient, amount=amount)
+        ingredient_amounts = [
+            IngredientAmount(
+                recipe=recipe, ingredient=ingredient_data['ingredient'],
+                amount=ingredient_data['amount']
+            )
+            for ingredient_data in ingredients_data
+        ]
+        IngredientAmount.objects.bulk_create(ingredient_amounts)
         return recipe
 
     def update(self, instance, validated_data):
@@ -120,11 +125,13 @@ class RecipeSerializer(serializers.ModelSerializer):
             instance.tags.set(tags_data)
         if ingredients_data is not None:
             IngredientAmount.objects.filter(recipe=instance).delete()
-            for ingredient_data in ingredients_data:
-                ingredient = ingredient_data['ingredient']
-                amount = ingredient_data['amount']
-                IngredientAmount.objects.create(
-                    recipe=instance, ingredient=ingredient, amount=amount)
+            ingredient_amounts = [
+                IngredientAmount(
+                    recipe=instance, ingredient=ingredient_data['ingredient'],
+                    amount=ingredient_data['amount'])
+                for ingredient_data in ingredients_data
+            ]
+            IngredientAmount.objects.bulk_create(ingredient_amounts)
         return instance
 
     def to_representation(self, instance):
@@ -135,11 +142,13 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeSubscSerializer(serializers.ModelSerializer):
-    '''Сокращённый сериализатор для рецептов в подписках.'''
-    image = Base64ImageField()
+    """Сокращённый сериализатор для рецептов в подписках и карте."""
+    id = serializers.ReadOnlyField(source='recipe.id')
+    name = serializers.ReadOnlyField(source='recipe.name')
+    cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time')
+    image = Base64ImageField(source='recipe.image')
 
     class Meta:
         model = Recipe
         fields = (
             'id', 'name', 'cooking_time', 'image')
-        read_only_fields = ('id', 'name', 'cooking_time', 'image')
