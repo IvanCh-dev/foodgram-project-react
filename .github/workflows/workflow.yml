@@ -25,11 +25,11 @@ jobs:
           push: true
           tags: ivanchdev/foodgram_backend:latest
       - name: Push frontend
-            uses: docker/build-push-action@v2 
-            with:
-              context: frontend/
-              push: true
-              tags: ivanchdev/foodgram_frontend:latest
+        uses: docker/build-push-action@v2
+        with:
+          context: frontend/
+          push: true
+          tags: ivanchdev/foodgram_frontend:latest
 
   deploy:
     if: ${{ github.ref }} == 'master'
