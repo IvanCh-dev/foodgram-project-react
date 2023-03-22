@@ -6,22 +6,23 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - .env
+      - ./.env
 
 backend:
-    image: ivanchdev/foodgram:v1
+    image: ivanchdev/foodgram_backend:latest
     restart: always
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
+      - data_value:/app/data/
     depends_on:
       - db
     env_file:
-      - .env
+      - ./.env
 
   frontend:
     build:
-      image: ivanchdev/foodgram:v1
+      image: ivanchdev/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
@@ -47,3 +48,4 @@ volumes:
   static_value:
   media_value:
   postgres_data:
+  data_value:
