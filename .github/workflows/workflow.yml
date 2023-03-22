@@ -44,6 +44,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
+            pwd
             sudo docker pull ivanchdev/foodgram_backend:latest
             sudo docker pull ivanchdev/foodgram_frontend:latest
             sudo docker-compose stop
@@ -56,7 +57,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            sudo rm .env
+            pwd
             sudo touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
             echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
