@@ -44,7 +44,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            cd admin-ivan/
             sudo docker pull ivanchdev/foodgram_backend:latest
             sudo docker pull ivanchdev/foodgram_frontend:latest
             sudo docker-compose stop
@@ -57,7 +56,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            cd admin-ivan/
             sudo rm .env
             sudo touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env

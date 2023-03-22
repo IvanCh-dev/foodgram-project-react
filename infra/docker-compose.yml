@@ -21,8 +21,7 @@ backend:
       - ./.env
 
   frontend:
-    build:
-      image: ivanchdev/foodgram_frontend:latest
+    image: ivanchdev/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
