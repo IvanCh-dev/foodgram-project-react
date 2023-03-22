@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
 
-  build:
+  build_and_push_to_docker_hub:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
@@ -34,7 +34,7 @@ jobs:
   deploy:
     if: ${{ github.ref }} == 'master'
     runs-on: ubuntu-latest
-    needs: build
+    needs: build_and_push_to_docker_hub
     steps:
       - name: pull docker image
         uses: appleboy/ssh-action@master
@@ -44,6 +44,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
+            cd admin-ivan/
             sudo docker pull ivanchdev/foodgram_backend:latest
             sudo docker pull ivanchdev/foodgram_frontend:latest
             sudo docker-compose stop
@@ -56,6 +57,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
+            cd admin-ivan/
             sudo rm .env
             sudo touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
