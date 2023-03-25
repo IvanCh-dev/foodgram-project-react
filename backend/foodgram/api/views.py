@@ -39,11 +39,9 @@ class IngredientViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         search_term = self.request.GET.get('name')
         if search_term:
-            queryset = Ingredient.objects.filter(
+            return Ingredient.objects.filter(
                 my_field__icontains=search_term)
-        else:
-            queryset = super().get_queryset()
-        return queryset
+        return super().get_queryset()
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
