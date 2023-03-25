@@ -195,10 +195,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class RecipeSubscSerializer(serializers.ModelSerializer):
     """Сокращённый сериализатор для рецептов в подписках и карте."""
-    id = serializers.ReadOnlyField(source='recipe.id')
-    name = serializers.ReadOnlyField(source='recipe.name')
-    cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time')
-    image = Base64ImageField(source='recipe.image')
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
