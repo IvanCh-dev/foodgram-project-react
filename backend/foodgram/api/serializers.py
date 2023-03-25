@@ -136,7 +136,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             self.fields['tags'] = serializers.PrimaryKeyRelatedField(
                 many=True,
                 queryset=Tag.objects.all())
-        if self.context['request'].method in ['GET',]:
+        if self.context['request'].method in ['GET', ]:
             self.fields['author'] = CustomUserSerializer()
 
     def get_is_favorited(self, obj):
