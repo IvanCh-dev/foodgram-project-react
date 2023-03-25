@@ -31,11 +31,19 @@ class TagViewSet(viewsets.ModelViewSet):
 class IngredientViewSet(viewsets.ModelViewSet):
     """ViewSet для модели ингредиентов."""
     permission_classes = (AllowAny,)
-    queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('^name', )
+    model = Ingredient
+
+    def get_queryset(self):
+        search_term = self.request.GET.get('name')
+        if search_term:
+            queryset = Ingredient.objects.filter(
+                my_field__icontains=search_term)
+        else:
+            queryset = super().get_queryset()
+        return queryset
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
