@@ -134,6 +134,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         if self.context['request'].method in ['POST', 'PATCH']:
             self.fields['ingredients'] = IngredientAmountCreateSerializer(
                 many=True, write_only=True,)
+            self.fields['tags'] = serializers.PrimaryKeyRelatedField(
+                many=True,
+                queryset=Tag.objects.all())
 
     def get_is_favorited(self, obj):
         recipe = obj.id if isinstance(obj, Recipe) else obj.recipe.id
