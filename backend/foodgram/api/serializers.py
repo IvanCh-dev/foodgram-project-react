@@ -119,7 +119,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         source='ingredientamount',
     )
     image = Base64ImageField()
-    author = CustomUserSerializer()
 
     class Meta:
         model = Recipe
@@ -137,6 +136,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             self.fields['tags'] = serializers.PrimaryKeyRelatedField(
                 many=True,
                 queryset=Tag.objects.all())
+        if self.context['request'].method in ['GET',]:
+            self.fields['author'] = CustomUserSerializer()
 
     def get_is_favorited(self, obj):
         recipe = obj.id if isinstance(obj, Recipe) else obj.recipe.id
