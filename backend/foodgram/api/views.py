@@ -34,14 +34,14 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     pagination_class = None
     filter_backends = (filters.SearchFilter,)
-    model = Ingredient
+    queryset = Ingredient.objects.all()
 
     def get_queryset(self):
-        search_term = self.request.GET.get('search_term')
-        if search_term:
+        name = self.request.GET.get('name')
+        if name:
             return Ingredient.objects.filter(
-                name__icontains=search_term)
-        return super().get_queryset()
+                name__icontains=name)
+        return super().queryset
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
