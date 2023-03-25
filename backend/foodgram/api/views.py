@@ -37,10 +37,10 @@ class IngredientViewSet(viewsets.ModelViewSet):
     model = Ingredient
 
     def get_queryset(self):
-        search_term = self.request.GET.get('name')
+        search_term = self.request.GET.get('search_term')
         if search_term:
             return Ingredient.objects.filter(
-                my_field__icontains=search_term)
+                name__icontains=search_term)
         return super().get_queryset()
 
 
