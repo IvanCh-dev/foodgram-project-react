@@ -15,6 +15,7 @@ from recipes.models import (
 from .serializers import (
     IngredientSerializer, RecipeSerializer, RecipeSubscSerializer,
     TagSerializer)
+from .filters import RecipeFilter
 
 User = get_user_model()
 
@@ -43,6 +44,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
