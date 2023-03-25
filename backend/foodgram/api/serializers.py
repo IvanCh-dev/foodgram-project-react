@@ -1,10 +1,60 @@
 import base64
 
+from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
+from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
 from recipes.models import (
     Cart, Favorite, Ingredient, IngredientAmount, Recipe, RecipeTag, Tag)
+
+from users.models import Subscription
+
+User = get_user_model()
+
+
+class CustomUserSerializer(UserSerializer):
+    """Сериализатор чтения объеката кастомной модели User."""
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'first_name',
+                  'last_name', 'is_subscribed')
+
+    def get_is_subscribed(self, obj):
+        user_id = obj.id if isinstance(obj, User) else obj.author.id
+        request_user = self.context.get('request').user.id
+        return Subscription.objects.filter(author=user_id,
+                                           user=request_user).exists()
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    """Сериализатор подписок."""
+    is_subscribed = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'first_name',
+                  'last_name', 'is_subscribed', 'recipes_count', 'recipes')
+
+    def get_is_subscribed(self, obj):
+        user_id = obj.id if isinstance(obj, User) else obj.author.id
+        request_user = self.context.get('request').user.id
+        return Subscription.objects.filter(author=user_id,
+                                           user=request_user).exists()
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        recipes = obj.recipes.all()
+        serializer = RecipeSubscSerializer(
+            recipes, many=True, context={'request': request})
+        return serializer.data
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
 
 
 class Base64ImageField(serializers.ImageField):
@@ -63,15 +113,13 @@ class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для рецептов."""
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    tags = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Tag.objects.all()
-    )
+    tags = TagSerializer(many=True, read_only=True)
     ingredients = IngredientAmountSerializer(
         many=True,
         source='ingredientamount',
     )
     image = Base64ImageField()
+    author = CustomUserSerializer()
 
     class Meta:
         model = Recipe
